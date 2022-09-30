@@ -15,11 +15,11 @@ knapsack_objects <-
 #==============Brute Force Function=======
 brute_force_knapsack <- function(x,W){
   
-  # if(any(colnames(x) != c("v", "w"))){stop()} # Check if the names of each column of dataframe are correct
-  # if(is.data.frame(x)==FALSE ){stop()}
-  # if( any(x) < 0){stop()}
-
+  
+  
 }
+
+  
 #=============End Brute Force Function=======
 
 
@@ -41,27 +41,54 @@ brute_force_knapsack <- function(x,W){
   #   m[i, j] := max(m[i-1, j], m[i-1, j-w[i]] + v[i])
   #=====End pseudo codes========
 
-knapsack_dynamic <- function(x, W){
+  knapsack_dynamic <- function(x, W){
   
-  m <- matrix(0,W+1,length(x[,1]+1))
-   
-    for(i in 1:length(x[,1]) ){
-      for(j in 0:W){
-        if(x$w[i] > j){m[i+1, j+1] <- m[i, j+1]}
-        
-        else{m[i+1, j+1] <- max(m[i, j+1], m[i, j+1-x$w[i]] + x$v[i])}
-        print(m)
-        
+    table <- matrix(0,length(x[,1])+1,W+1)
+  
+    for(i in 2:length(x[,1])){
+      for(j in 1:(W+1)){
+        if(x$w[i] > j){
+          table[i,j]<-table[i-1,j]
+        }else{
+          table[i,j]<-max((x$v[i]+table[i-1,j-x$w[i]]),table[i-1,j])
+        }
       }
-        
-   return(m)     
-        
     }
+   
+    maxvalue <- round(max(table[,W+1]))
   
-  
-  
+    
+    element1 <- which.max(table[,W+1])
+    table_calculate <-table[-element1:-length(x$w),] #need to delete the rows below the one have already chooesn 
+    #============This is the woriking part if only two elements are inside, Comment out if you want to try===========
+    # element2 <- which.max(table_calculate[,W-x$w[element1]])
+    # elements <- c(element1,element2)
+    # output_list <- list("value"=maxvalue, "elements"=c(sort(elements, decreasing = FALSE)))
+    # 
+    # return(output_list)
+    #============End of the woriking part if only two elements are inside===========
+    
+    #============Below are the testing I am doing
+    elements <- c(element1)
+     for(i in 2:length(x$w)){
+       table_calculate <-table_calculate[-elements[i-1],]
+       element[i+1] <- which.max(table_calculate[,W-x$w[elements[i]]])
+
+
+     }
+    return(table_calculate)
   
 }
+  
+
+     
+
+
+  
+  
+  
+  
+
 
 
 
