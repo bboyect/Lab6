@@ -11,15 +11,55 @@ knapsack_objects <-
     v=runif(n = n, 0, 10000)
   )
 
+get_indexes<- function(vector){
+  indexes <- which(vector == 1)
+  sum <- 0
+  if (exists("indexes"))
+  {
+      for (i in indexes){
+       sum <- sum + knapsack_objects[i, 1]
+      }
+  }
+  return(sum)
+}
+
+get_value <- function(vector){
+  indexes <- which(vector == 1)
+  sum <- 0
+  if (exists("indexes"))
+  {
+    for (i in indexes){
+      sum <- sum + knapsack_objects[i, 2]
+    }
+  }
+  return(sum)
+}
 
 #==============Brute Force Function=======
 brute_force_knapsack <- function(x,W){
   
-  # if(any(colnames(x) != c("v", "w"))){stop()} # Check if the names of each column of dataframe are correct
-  # if(is.data.frame(x)==FALSE ){stop()}
-  # if( any(x) < 0){stop()}
+ n <- nrow(x)
+ l <- rep(list(0:1), n)
+ multiple_combinations <- expand.grid(l)
+ total_weights <- list()
+ total_values <- list()
+ 
+ for (i in 1:nrow(multiple_combinations)){
+   total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ]))
+   total_values <- append(total_values, get_value(multiple_combinations[i, ]))
+   
+ }
+ 
+ indexes_to_look_for <- which(total_weights <= W)
+ value_to_return <- max(unlist(total_values[indexes_to_look_for]))
+ index_to_return <- which(total_values == value_to_return)
+ 
+ 
+ 
 
-}
+  return(list(value = value_to_return , elements =  which(multiple_combinations[index_to_return, ] == 1)))
+ }
+
 #=============End Brute Force Function=======
 
 
@@ -63,7 +103,29 @@ knapsack_dynamic <- function(x, W){
   
 }
 
-
+# brute_force_knapsack <- function(x, w){
+#   total_value <- 0
+#   combinations <- list()
+#   for (i in seq_along(x[,1])){
+#     weight1 <- x[i, 1]
+#     value1 <- x[i, 2]
+#     element1 <- i
+#     for (j in seq_along(x[, 1])){
+#       weight2 <- x[j, 1]
+#       value2 <- x[j, 2]
+#       element2 <- j
+#       print(j)
+#       print(i)
+#       
+#       total_value <- value1 + value2
+#       total_weight <- weight2 + weight1
+#       
+#       combinations <- append(combinations, total_value)
+#       
+#       
+#     }
+#     
+#   }
 
 
 #=============End Dynamic programming=======
