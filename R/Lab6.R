@@ -38,6 +38,10 @@ get_value <- function(vector){
 #==============Brute Force Function=======
 brute_force_knapsack <- function(x,W){
   
+  if(any(colnames(x) != c("v", "w"))){stop()} # Check if the names of each column of dataframe are correct
+  if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
+  if( any(x) < 0){stop()} #Check if every value in dataframe is positive
+  
  n <- nrow(x)
  l <- rep(list(0:1), n)
  multiple_combinations <- expand.grid(l)
@@ -57,7 +61,7 @@ brute_force_knapsack <- function(x,W){
  
  
 
-  return(list(value = value_to_return , elements =  which(multiple_combinations[index_to_return, ] == 1)))
+  return(list(value = round(value_to_return) , elements =  which(multiple_combinations[index_to_return, ] == 1)))
  }
 
 #=============End Brute Force Function=======
@@ -65,68 +69,46 @@ brute_force_knapsack <- function(x,W){
 
 
 #=============Dynamic programming=======
-  
-  #=====pseudo codes======
-  # array m[0..n, 0..W];
-  # for j from 0 to W do:
-  #   m[0, j] := 0
-  # for i from 1 to n do:
-  #   m[i, 0] := 0
-  # 
-  # for i from 1 to n do:
-  #   for j from 0 to W do:
-  #   if w[i] > j then:
-  #   m[i, j] := m[i-1, j]
-  # else:
-  #   m[i, j] := max(m[i-1, j], m[i-1, j-w[i]] + v[i])
-  #=====End pseudo codes========
 
 knapsack_dynamic <- function(x, W){
   
-  m <- matrix(NA,W+1,length(x[,1]+1))
-   
-    for(i in 1:length(x[,1]) ){
-      for(j in 0:W){
-        if(x$w[i] > j){m[i+1, j+1] <- m[i, j+1]}
-        
-        else{m[i+1, j+1] <- max(m[i, j+1], m[i, j+1-x$w[i]] + x$v[i])}
-        
-        
+  if(any(colnames(x) != c("v", "w"))){stop()} # Check if the names of each column of dataframe are correct
+  if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
+  if( any(x) < 0){stop()} #Check if every value in dataframe is positive  
+  
+  table <- matrix(0,length(x[,1])+1,W+1)
+  
+  for(i in 2:length(x[,1])){
+    for(j in 1:(W+1)){
+      if(x$w[i] > j){
+        table[i,j]<-table[i-1,j]
+      }else{
+        table[i,j]<-max((x$v[i]+table[i-1,j-x$w[i]]),table[i-1,j])
       }
-        
-   return(m)     
-        
     }
+  }
+  maxvalue <- round(max(table[,W+1]))
   
+  #====find the elements=====
+  elements <- c()
+  j <- W
   
+  for (i in length(x$w):2){
+    
+    if (table[i,  j] != table[i-1, j]){
+      elements[i] <-  i 
+      j <- j - x$w[i]
+      
+      next
+    }
+  }
   
+  elements <- elements[!is.na(elements)]
+  output_list <- list("value"=maxvalue, "elements"=c(sort(elements, decreasing = FALSE)))
+  
+  return(output_list)
   
 }
-
-# brute_force_knapsack <- function(x, w){
-#   total_value <- 0
-#   combinations <- list()
-#   for (i in seq_along(x[,1])){
-#     weight1 <- x[i, 1]
-#     value1 <- x[i, 2]
-#     element1 <- i
-#     for (j in seq_along(x[, 1])){
-#       weight2 <- x[j, 1]
-#       value2 <- x[j, 2]
-#       element2 <- j
-#       print(j)
-#       print(i)
-#       
-#       total_value <- value1 + value2
-#       total_weight <- weight2 + weight1
-#       
-#       combinations <- append(combinations, total_value)
-#       
-#       
-#     }
-#     
-#   }
-
 
 #=============End Dynamic programming=======
 
