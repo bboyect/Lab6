@@ -43,14 +43,14 @@ brute_force_knapsack <- function(x,W){
 
 knapsack_dynamic <- function(x, W){
   
-  m <- matrix(NA,W+1,length(x[,1]+1))
+  m <- matrix(0,W+1,length(x[,1]+1))
    
     for(i in 1:length(x[,1]) ){
       for(j in 0:W){
         if(x$w[i] > j){m[i+1, j+1] <- m[i, j+1]}
         
         else{m[i+1, j+1] <- max(m[i, j+1], m[i, j+1-x$w[i]] + x$v[i])}
-        
+        print(m)
         
       }
         
