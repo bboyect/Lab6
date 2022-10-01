@@ -139,28 +139,27 @@ knapsack_dynamic <- function(x, W){
 #=============End Dynamic programming=======
 
 
-#============Gredy
-#' greedy_knapsack
-#'
-#' Using Greedy algorithm to solve
-#' @param x the data set Knapsack_object
-#' @param W the max weight allowed
-#'
-#' @export
-#' @importFrom utils tail 
-
+#' #============Gredy
+#' #' greedy_knapsack
+#' #'
+#' #' Using Greedy algorithm to solve
+#' #' @param x the data set Knapsack_object
+#' #' @param W the max weight allowed
+#' #'
+#' #' @export
+#' #' @importFrom utils tail 
+#' 
 greedy_knapsack <- function(x, W){
-  
+
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
   if( any(x < 0)){stop()} #Check if every value in dataframe is positive
   if( W < 0){stop()}
+
+
+
+    x$ratio <- x$v / x$w
   
-  
-  x$ratio = 0
-  for (i in 1:length(x[, 1, 1])){
-    x$ratio[i] <- x$v[i] / x$w[i]
-  }
   sorted_dataframe <-x[order(x$ratio),]
   elements <- list()
   sum <- 0
@@ -173,7 +172,7 @@ greedy_knapsack <- function(x, W){
       value <- value + sorted_dataframe$v[i]
       elements <- append(elements, i)
       j <- j+1
-      
+
     }
     else{
       break
@@ -181,6 +180,7 @@ greedy_knapsack <- function(x, W){
   }
   output_elements<- as.numeric(row.names(utils::tail(sorted_dataframe, n=j-1)))
   output_list <- list("value"=round(value), "elements"=c(rev(output_elements)))
-  
+
   return(output_list)
 }
+
