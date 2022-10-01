@@ -1,11 +1,6 @@
 #'  The Lab6 package
 #' 
 #'  Using different algorithm to solove Knapsack problem
-#'  
-#' @param inputId inputId
-#' @param label label
-#' @param value value
-#' @param ... other input
 #' @export
 
 #==============RNG Set Up===============
@@ -139,16 +134,16 @@ knapsack_dynamic <- function(x, W){
 #=============End Dynamic programming=======
 
 
-#' #============Gredy
-#' #' greedy_knapsack
-#' #'
-#' #' Using Greedy algorithm to solve
-#' #' @param x the data set Knapsack_object
-#' #' @param W the max weight allowed
-#' #'
-#' #' @export
-#' #' @importFrom utils tail 
-#' 
+#============Greedy Algorithm==========
+#' greedy_knapsack
+#'
+#' Using Greedy algorithm to solve
+#' @param x the data set Knapsack_object
+#' @param W the max weight allowed
+#'
+#' @export
+#' @importFrom utils tail
+
 greedy_knapsack <- function(x, W){
 
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
@@ -158,7 +153,7 @@ greedy_knapsack <- function(x, W){
 
 
 
-    x$ratio <- x$v / x$w
+  x$ratio <- x$v / x$w
   
   sorted_dataframe <-x[order(x$ratio),]
   elements <- list()

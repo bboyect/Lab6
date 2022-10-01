@@ -2,26 +2,15 @@
 % Please edit documentation in R/Lab6.R
 \name{greedy_knapsack}
 \alias{greedy_knapsack}
-\title{#============Gredy
-#' greedy_knapsack
-#'
-#' Using Greedy algorithm to solve
-#' @param x the data set Knapsack_object
-#' @param W the max weight allowed
-#'
-#' @export
-#' @importFrom utils tail}
+\title{greedy_knapsack}
 \usage{
 greedy_knapsack(x, W)
 }
+\arguments{
+\item{x}{the data set Knapsack_object}
+
+\item{W}{the max weight allowed}
+}
 \description{
-#============Gredy
-#' greedy_knapsack
-#'
-#' Using Greedy algorithm to solve
-#' @param x the data set Knapsack_object
-#' @param W the max weight allowed
-#'
-#' @export
-#' @importFrom utils tail
+Using Greedy algorithm to solve
 }
