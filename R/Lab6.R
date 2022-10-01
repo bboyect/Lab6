@@ -1,4 +1,12 @@
-
+#'  The Lab6 package
+#' 
+#'  Using different algorithm to solove Knapsack problem
+#'  
+#' @param inputId inputId
+#' @param label label
+#' @param value value
+#' @param ... other input
+#' @export
 
 #==============RNG Set Up===============
 RNGversion(min(as.character(getRversion()),"3.5.3"))
@@ -36,6 +44,14 @@ get_value <- function(vector){
 }
 
 #==============Brute Force Function=======
+#' brute_force_knapsack
+#'
+#' Using brute force to solve knapsack
+#' @param x the data set Knapsack_object
+#' @param W the max weight allowed
+#'
+#' @export
+#' 
 brute_force_knapsack <- function(x,W){
   
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
@@ -70,6 +86,14 @@ brute_force_knapsack <- function(x,W){
 
 
 #=============Dynamic programming=======
+
+#' knapsack_dynamic
+#'
+#' Using Dynamic programming algorithm to solve
+#' @param x the data set Knapsack_object
+#' @param W the max weight allowed
+#'
+#' @export
 
 knapsack_dynamic <- function(x, W){
   
@@ -116,6 +140,15 @@ knapsack_dynamic <- function(x, W){
 
 
 #============Gredy
+#' greedy_knapsack
+#'
+#' Using Greedy algorithm to solve
+#' @param x the data set Knapsack_object
+#' @param W the max weight allowed
+#'
+#' @export
+#' @importFrom utils tail 
+
 greedy_knapsack <- function(x, W){
   
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
@@ -146,7 +179,7 @@ greedy_knapsack <- function(x, W){
       break
     }
   }
-  output_elements<- as.numeric(row.names(tail(sorted_dataframe, n=j-1)))
+  output_elements<- as.numeric(row.names(utils::tail(sorted_dataframe, n=j-1)))
   output_list <- list("value"=round(value), "elements"=c(rev(output_elements)))
   
   return(output_list)
