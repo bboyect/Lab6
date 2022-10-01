@@ -5,7 +5,7 @@ Version: 1.0
 Date: 2022-09-30
 Author: Yi Hung Chen, Kyriakos Papadopoulos
 Maintainer: Yi Hung Chen<yihch883@student.liu.se> ,Kyriakos Papadopoulos<kyrpa853@student.liu.se>
-Description:  Lab 6 Package. Using different algorithim to solve knapsack problem.
+Description: Lab 6 Package. Using different algorithim to solve knapsack problem.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.1
