@@ -38,9 +38,10 @@ get_value <- function(vector){
 #==============Brute Force Function=======
 brute_force_knapsack <- function(x,W){
   
-  if(any(colnames(x) != c("v", "w"))){stop()} # Check if the names of each column of dataframe are correct
+  if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
-  if( any(x) < 0){stop()} #Check if every value in dataframe is positive
+  if( any(x < 0)){stop()} #Check if every value in dataframe is positive
+  if( W < 0){stop()}
   
  n <- nrow(x)
  l <- rep(list(0:1), n)
@@ -72,9 +73,10 @@ brute_force_knapsack <- function(x,W){
 
 knapsack_dynamic <- function(x, W){
   
-  if(any(colnames(x) != c("v", "w"))){stop()} # Check if the names of each column of dataframe are correct
+  if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
-  if( any(x) < 0){stop()} #Check if every value in dataframe is positive  
+  if( any(x < 0)){stop()} #Check if every value in dataframe is positive
+  if( W < 0){stop()}
   
   table <- matrix(0,length(x[,1])+1,W+1)
   
@@ -112,3 +114,40 @@ knapsack_dynamic <- function(x, W){
 
 #=============End Dynamic programming=======
 
+
+#============Gredy
+greedy_knapsack <- function(x, W){
+  
+  if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
+  if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
+  if( any(x < 0)){stop()} #Check if every value in dataframe is positive
+  if( W < 0){stop()}
+  
+  
+  x$ratio = 0
+  for (i in 1:length(x[, 1, 1])){
+    x$ratio[i] <- x$v[i] / x$w[i]
+  }
+  sorted_dataframe <-x[order(x$ratio),]
+  elements <- list()
+  sum <- 0
+  j <- 1
+  value <- 0
+  for (i in (length(sorted_dataframe[, 1, 1])):1){
+    if ((sum + sorted_dataframe$w[i] ) < W){
+      sorted_dataframe$w[i]
+      sum <- sum + sorted_dataframe$w[i]
+      value <- value + sorted_dataframe$v[i]
+      elements <- append(elements, i)
+      j <- j+1
+      
+    }
+    else{
+      break
+    }
+  }
+  output_elements<- as.numeric(row.names(tail(sorted_dataframe, n=j-1)))
+  output_list <- list("value"=round(value), "elements"=c(rev(output_elements)))
+  
+  return(output_list)
+}
