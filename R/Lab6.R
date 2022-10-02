@@ -58,41 +58,46 @@ brute_force_knapsack <- function(x,W){
   cores <-2
   cl <- parallel::makeCluster(cores, type = "PSOCK")
   n=l=maxvalue=multiple_combinations=total_weights=total_values=indexes_to_look_for=value_to_return=index_to_return= NA
-  parallel::clusterExport(cl, varlist=c("knapsack_objects","x","W","n","l","maxvalue","multiple_combinations","total_weights","total_values","indexes_to_look_for","value_to_return", "index_to_return"), envir=environment())
-
-  
+  parallel::clusterExport(cl, varlist=c("knapsack_objects","x","W","n","l","maxvalue","multiple_combinations","total_weights","total_values","indexes_to_look_for","value_to_return","index_to_return","get_value","get_indexes"), envir=environment())
 
   
   n <- nrow(x)
   l <- rep(list(0:1), n)
-  multiple_combinations <- expand.grid(l)
+  
+  #======The place I change
+  combinations<- parallel::parLapply(cl, 1:(2^n), function(x) as.integer(intToBits(x)))
+  multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
+  multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
+  
+  #======The place I change
+  
   total_weights <- list()
   total_values <- list()
-  
-  for (i in 1:nrow(multiple_combinations)){
-    
-    total_weights <- append(total_weights, parLapply(cl,multiple_combinations[i, ],get_indexes))
-    # total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ]))
-    
-    total_values <- append(total_values, parLapply(cl,multiple_combinations[i, ],get_value))
-    # total_values <- append(total_values, get_value(multiple_combinations[i, ]))
 
-    
-    
-  }
-  stopCluster(cl)
-  
-  indexes_to_look_for <- which(total_weights <= W)
-  value_to_return <- max(unlist(total_values[indexes_to_look_for]))
-  index_to_return <- which(total_values == value_to_return)
-  
-  
-  testlist<-list(total_weights,total_values)
-  
-  return(list(value = round(value_to_return) , elements =  which(multiple_combinations[index_to_return, ] == 1)))
-  # return(testlist)
+
+for (i in 1:nrow(multiple_combinations)){
+
+  total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ]))
+  total_values <- append(total_values, get_value(multiple_combinations[i, ]))
+
 }
 
+indexes_to_look_for <- which(total_weights <= W)
+value_to_return <- max(unlist(total_values[indexes_to_look_for]))
+index_to_return <- which(total_values == value_to_return)
+
+# return(list(value = round(value_to_return) , elements =  which(multiple_combinations[index_to_return, ] == 1)))
+return(multiple_combinations)
+  parallel::stopCluster(cl)
+}
+
+
+
+
+check <- brute_force_knapsack(x = knapsack_objects[1:8,], W = 2000)
+check2 <- brute_force_knapsack(x = knapsack_objects[1:8,], W = 2000)
+View(check)
+View(check2)
 #=============End Brute Force Function=======
 
 
@@ -199,30 +204,20 @@ greedy_knapsack <- function(x, W){
 
 
 
-
-
-
-
-
-
-
-
-# values<-parallel::parLapply(cl, 1:n, function(i, x,W) {
-#   
-#   comb<-utils::combn(n,i) #all possible combination of i from 1 to n
-#   j<-1
-#   
-#   while(j<=ncol(comb)){ 
-#     if(sum(x$w[comb[,j]])<=W){
-#       value<-sum(x$v[comb[,j]])
-#       if(maxvalue<value){
-#         elements<-comb[,j] #save elements of that combination
-#         maxvalue<-value #save the max value you found
-#       }
-#     }
-#     j<-j+1
-#   }
-#   
-#   return(list(value=round(maxvalue),elements=elements))
-#   
-# }, x, W )
+#=====================Other bruteforce==========
+f (parallel == TRUE) {
+  input_list <- list(x = x, W = W)
+  num_cores <- parallel::detectCores() - 1
+  cl <- parallel::makeCluster(num_cores)
+  combinations_x <- parallel::parLapply(cl, 1:(2^n-1), function(x) as.integer(intToBits(x)))
+  for (i in 1:(2^n - 1)) {
+    comb_elements <- which(combinations_x[[i]] > 0)
+    sub_df <- x[as.integer(row.names(x)) %in% comb_elements, ]
+    if (sum(sub_df$w) < W && sum(sub_df$v) > value_sum) {
+      value_sum = sum(sub_df$v)
+      value = sum(sub_df$v)
+      elements = comb_elements
+    }
+  }
+  parallel::stopCluster(cl)
+}
