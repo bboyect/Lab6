@@ -9,7 +9,7 @@ Description: Lab 6 Package. Using different algorithim to solve knapsack problem
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.1
-Depends: R (>= 3.5.0),utils
+Depends: R (>= 3.5.0), parallel ,utils
 Suggests: 
     knitr,
     rmarkdown,

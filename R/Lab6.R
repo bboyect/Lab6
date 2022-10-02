@@ -1,38 +1,38 @@
-#'  The Lab6 package
-#' 
-#'  Using different algorithm to solove Knapsack problem
-#' @export
+#'  get_indexes
+#'  
+#'  get_indexes by using the combinatinons and knapsack data
+#'  
+#' @param vector input multiple_combinations[i, ]
+#' @param data the knapsack data
+#'
 
-#==============RNG Set Up===============
-RNGversion(min(as.character(getRversion()),"3.5.3"))
-
-set.seed(42, kind = "Mersenne-Twister", normal.kind = "Inversion")
-n <- 2000
-knapsack_objects <-
-  data.frame(
-    w=sample(1:4000, size = n, replace = TRUE),
-    v=runif(n = n, 0, 10000)
-  )
-
-get_indexes<- function(vector){
-  indexes <- which(vector == 1)
-  sum <- 0
-  if (exists("indexes"))
-  {
-      for (i in indexes){
-       sum <- sum + knapsack_objects[i, 1]
-      }
-  }
-  return(sum)
-}
-
-get_value <- function(vector){
+get_indexes<- function(vector,data){
   indexes <- which(vector == 1)
   sum <- 0
   if (exists("indexes"))
   {
     for (i in indexes){
-      sum <- sum + knapsack_objects[i, 2]
+      sum <- sum + data[i, 1]
+      
+    }
+  }
+  return(sum)
+}
+
+#'  get value
+#'  
+#'  get value by using the combinatinons and knapsack data
+#'
+#' @param vector input multiple_combinations[i, ]
+#' @param data the knapsack data
+
+get_value <- function(vector,data){
+  indexes <- which(vector == 1)
+  sum <- 0
+  if (exists("indexes"))
+  {
+    for (i in indexes){
+      sum <- sum + data[i, 2]
     }
   }
   return(sum)
@@ -42,39 +42,63 @@ get_value <- function(vector){
 #' brute_force_knapsack
 #'
 #' Using brute force to solve knapsack
+#' 
 #' @param x the data set Knapsack_object
 #' @param W the max weight allowed
-#'
+#' @param parallel Using parallel or not, defult is FALSE
+#' @import parallel
 #' @export
 #' 
-brute_force_knapsack <- function(x,W){
+brute_force_knapsack <- function(x,W,parallel = FALSE){
   
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
   if( any(x < 0)){stop()} #Check if every value in dataframe is positive
   if( W < 0){stop()}
   
- n <- nrow(x)
- l <- rep(list(0:1), n)
- multiple_combinations <- expand.grid(l)
- total_weights <- list()
- total_values <- list()
- 
- for (i in 1:nrow(multiple_combinations)){
-   total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ]))
-   total_values <- append(total_values, get_value(multiple_combinations[i, ]))
-   
- }
- 
- indexes_to_look_for <- which(total_weights <= W)
- value_to_return <- max(unlist(total_values[indexes_to_look_for]))
- index_to_return <- which(total_values == value_to_return)
- 
- 
- 
-
+  
+  
+  if (parallel == TRUE) {
+    cores <- parallel::detectCores()
+    cl <- parallel::makeCluster(cores, type = "PSOCK")
+    parallel::clusterExport(cl, varlist=c("x","W"), envir=environment())
+    
+    n <- nrow(x)
+    l <- rep(list(0:1), n)
+    
+    combinations<- parallel::parLapply(cl, 1:(2^n), function(x) as.integer(intToBits(x)))
+    parallel::stopCluster(cl)
+    multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
+    multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
+  }
+  
+  else{
+    n <- nrow(x)
+    l <- rep(list(0:1), n)
+    
+    combinations<- lapply( 1:(2^n), function(x) as.integer(intToBits(x)))
+    multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
+    multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
+  }  
+  
+  total_weights <- list()
+  total_values <- list()
+  
+  
+  for (i in 1:nrow(multiple_combinations)){
+    
+    total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ],x))
+    total_values <- append(total_values, get_value(multiple_combinations[i, ],x))
+    
+  }
+  
+  indexes_to_look_for <- which(total_weights <= W)
+  value_to_return <- max(unlist(total_values[indexes_to_look_for]))
+  index_to_return <- which(total_values == value_to_return)
+  
   return(list(value = round(value_to_return) , elements =  which(multiple_combinations[index_to_return, ] == 1)))
- }
+  
+}
 
 #=============End Brute Force Function=======
 
@@ -145,14 +169,14 @@ knapsack_dynamic <- function(x, W){
 #' @importFrom utils tail
 
 greedy_knapsack <- function(x, W){
-
+  
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
   if( any(x < 0)){stop()} #Check if every value in dataframe is positive
   if( W < 0){stop()}
-
-
-
+  
+  
+  
   x$ratio <- x$v / x$w
   
   sorted_dataframe <-x[order(x$ratio),]
@@ -167,7 +191,7 @@ greedy_knapsack <- function(x, W){
       value <- value + sorted_dataframe$v[i]
       elements <- append(elements, i)
       j <- j+1
-
+      
     }
     else{
       break
@@ -175,7 +199,7 @@ greedy_knapsack <- function(x, W){
   }
   output_elements<- as.numeric(row.names(utils::tail(sorted_dataframe, n=j-1)))
   output_list <- list("value"=round(value), "elements"=c(rev(output_elements)))
-
+  
   return(output_list)
 }
 

@@ -4,12 +4,14 @@
 \alias{brute_force_knapsack}
 \title{brute_force_knapsack}
 \usage{
-brute_force_knapsack(x, W)
+brute_force_knapsack(x, W, parallel = FALSE)
 }
 \arguments{
 \item{x}{the data set Knapsack_object}
 
 \item{W}{the max weight allowed}
+
+\item{parallel}{Using parallel or not, defult is FALSE}
 }
 \description{
 Using brute force to solve knapsack
