@@ -47,57 +47,57 @@ get_value <- function(vector){
 #'
 #' @export
 #' 
-brute_force_knapsack <- function(x,W){
+brute_force_knapsack <- function(x,W,parallel = FALSE){
   
   if(any(colnames(x) != c("w", "v"))){stop()} # Check if the names of each column of dataframe are correct
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
   if( any(x < 0)){stop()} #Check if every value in dataframe is positive
   if( W < 0){stop()}
   
-  cores <- parallel::detectCores()
-  cores <-2
-  cl <- parallel::makeCluster(cores, type = "PSOCK")
-  n=l=maxvalue=multiple_combinations=total_weights=total_values=indexes_to_look_for=value_to_return=index_to_return= NA
-  parallel::clusterExport(cl, varlist=c("knapsack_objects","x","W","n","l","maxvalue","multiple_combinations","total_weights","total_values","indexes_to_look_for","value_to_return","index_to_return","get_value","get_indexes"), envir=environment())
+  
+  if (parallel == TRUE) {
+    cores <- parallel::detectCores()
+    cores <-8
+    cl <- parallel::makeCluster(cores, type = "PSOCK")
+    parallel::clusterExport(cl, varlist=c("x","W"), envir=environment())
+    n <- nrow(x)
+    l <- rep(list(0:1), n)
+    combinations<- parallel::parLapply(cl, 1:(2^n), function(x) as.integer(intToBits(x)))
+    parallel::stopCluster(cl)
+    multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
+    multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
+  }
 
+  else{
+    n <- nrow(x)
+    l <- rep(list(0:1), n)
   
-  n <- nrow(x)
-  l <- rep(list(0:1), n)
-  
-  #======The place I change
-  combinations<- parallel::parLapply(cl, 1:(2^n), function(x) as.integer(intToBits(x)))
-  multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
-  multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
-  
-  #======The place I change
+    combinations<- lapply( 1:(2^n), function(x) as.integer(intToBits(x)))
+    multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
+    multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
+  }  
   
   total_weights <- list()
   total_values <- list()
-
-
-for (i in 1:nrow(multiple_combinations)){
-
-  total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ]))
-  total_values <- append(total_values, get_value(multiple_combinations[i, ]))
+  
+  
+  for (i in 1:nrow(multiple_combinations)){
+    
+    total_weights <- append(total_weights, get_indexes(multiple_combinations[i, ]))
+    total_values <- append(total_values, get_value(multiple_combinations[i, ]))
+    
+  }
+  
+  indexes_to_look_for <- which(total_weights <= W)
+  value_to_return <- max(unlist(total_values[indexes_to_look_for]))
+  index_to_return <- which(total_values == value_to_return)
+  
+  return(list(value = round(value_to_return) , elements =  which(multiple_combinations[index_to_return, ] == 1)))
+  
+  
+  
 
 }
-
-indexes_to_look_for <- which(total_weights <= W)
-value_to_return <- max(unlist(total_values[indexes_to_look_for]))
-index_to_return <- which(total_values == value_to_return)
-
-# return(list(value = round(value_to_return) , elements =  which(multiple_combinations[index_to_return, ] == 1)))
-return(multiple_combinations)
-  parallel::stopCluster(cl)
-}
-
-
-
-
-check <- brute_force_knapsack(x = knapsack_objects[1:8,], W = 2000)
-check2 <- brute_force_knapsack(x = knapsack_objects[1:8,], W = 2000)
-View(check)
-View(check2)
 #=============End Brute Force Function=======
 
 
@@ -199,25 +199,4 @@ greedy_knapsack <- function(x, W){
   output_list <- list("value"=round(value), "elements"=c(rev(output_elements)))
   
   return(output_list)
-}
-
-
-
-
-#=====================Other bruteforce==========
-f (parallel == TRUE) {
-  input_list <- list(x = x, W = W)
-  num_cores <- parallel::detectCores() - 1
-  cl <- parallel::makeCluster(num_cores)
-  combinations_x <- parallel::parLapply(cl, 1:(2^n-1), function(x) as.integer(intToBits(x)))
-  for (i in 1:(2^n - 1)) {
-    comb_elements <- which(combinations_x[[i]] > 0)
-    sub_df <- x[as.integer(row.names(x)) %in% comb_elements, ]
-    if (sum(sub_df$w) < W && sum(sub_df$v) > value_sum) {
-      value_sum = sum(sub_df$v)
-      value = sum(sub_df$v)
-      elements = comb_elements
-    }
-  }
-  parallel::stopCluster(cl)
 }
