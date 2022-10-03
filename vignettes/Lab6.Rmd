@@ -18,6 +18,8 @@ This Package contains 3 different algorithms for solving the **knapsack problem*
 3.  Greedy Heuristic
 
 ```{r, include = FALSE}
+RNGversion(min(as.character(getRversion()),"3.5.3"))
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -57,7 +59,7 @@ The time that it takes to run the algorithm for n=16 is 144.68s
 -   W -\> The total weight that knapsack fit
 
 ```{r, eval=TRUE, include=TRUE}
-knapsack_dynamic(x = knapsack_objects[1:800,], W = 3500)
+knapsack_dynamic(x = knapsack_objects[1:8,], W = 3500)
 ```
 
 The time that it takes to run the algorithm for n=500 is 2.28 seconds.
