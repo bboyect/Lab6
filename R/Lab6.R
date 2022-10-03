@@ -1,4 +1,4 @@
-#' Lab3
+#' Lab6
 #'
 #' Using different alogrithm to solve knapsack problem
 #'
