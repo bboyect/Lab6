@@ -1,3 +1,14 @@
+#' Lab3
+#'
+#' Using different alogrithm to solve knapsack problem
+#'
+#' @docType package
+#'  
+#' @author Kyriakos Papadopoulos  \email{kyrpa853@student.liu.se} YiHung Chen  \email{yihch883@student.liu.se}
+#' @name lab6
+NULL
+
+
 #'  get_indexes
 #'  
 #'  get_indexes by using the combinatinons and knapsack data
