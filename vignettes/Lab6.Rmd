@@ -47,9 +47,14 @@ library(Lab6)
 
 ```{r, eval=TRUE, include=TRUE}
 brute_force_knapsack(x = knapsack_objects[1:8,], W = 3500)
+brute_force_knapsack(x = knapsack_objects[1:12,], W = 3500)
+brute_force_knapsack(x = knapsack_objects[1:8,], W = 2000)
+brute_force_knapsack(x = knapsack_objects[1:12,], W = 2000)
 ```
 
-The time that it takes to run the algorithm for n=16 is 144.68s
+The time that it takes to run the algorithm for n=16 is 144.68s 
+
+(Since the run time is high, we do not run the code in real time when vignette is created)
 
 ### knapsack_dynamic(x,W)
 
@@ -60,6 +65,9 @@ The time that it takes to run the algorithm for n=16 is 144.68s
 
 ```{r, eval=TRUE, include=TRUE}
 knapsack_dynamic(x = knapsack_objects[1:8,], W = 3500)
+knapsack_dynamic(x = knapsack_objects[1:12,], W = 3500)
+knapsack_dynamic(x = knapsack_objects[1:8,], W = 2000)
+knapsack_dynamic(x = knapsack_objects[1:12,], W = 2000)
 ```
 
 The time that it takes to run the algorithm for n=500 is 2.28 seconds.
@@ -72,6 +80,65 @@ The time that it takes to run the algorithm for n=500 is 2.28 seconds.
 
 ```{r, eval=TRUE, include=TRUE}
 greedy_knapsack(x = knapsack_objects[1:800,], W = 3500)
+greedy_knapsack(x = knapsack_objects[1:1200,], W = 2000)
 ```
 
 The time that it takes to run the algorithm for n=1000000 is 0.09s seconds.
+
+
+### Profiling
+>After using profvis to profile our brute_force algorithm, we found out using get_value and get_indexes in brute_force is one of the bottleneck, so we did some change in get_value & get_indexes function
+
+We remove the for loop in both functions, and replace it with "rowSums"
+```{r}
+get_indexes<- function(vector,data){
+  indexes <- which(vector == 1)
+  
+  sum <- 0
+  if (exists("indexes"))
+  {
+    # for (i in indexes){
+    #   sum <- sum + data[i, 1]
+    # }
+    sum <- sum(rowSums(as.matrix(data[indexes, 1])))
+
+  }
+  return(sum)
+}
+```
+
+```{r}
+get_value <- function(vector,data){
+  indexes <- which(vector == 1)
+  sum <- 0
+  if (exists("indexes"))
+  {
+    #for (i in indexes){
+    # sum <- sum + data[i, 2]
+    #}
+    sum <- sum(rowSums(as.matrix(data[indexes, 2])))
+  }
+  return(sum)
+}
+```
+
+We use knapsack_objects[1:12,] to test our result and we got 8% speed improvement 
+(Originally 2.33 secs and After 2.14 secs)
+
+### Parallelizing
+>We using parallelizing to create the dataframe with all combinations in brute force algorithm. 
+
+```{r, eval=FALSE}
+  if (parallel == TRUE) {
+    cores <- parallel::detectCores()
+    cl <- parallel::makeCluster(cores, type = "PSOCK")
+
+    n <- nrow(x)
+    l <- rep(list(0:1), n)
+    
+    combinations<- parallel::parLapply(cl, 1:(2^n), function(x) as.integer(intToBits(x)))
+    parallel::stopCluster(cl)
+   }
+```
+  
+However, the improvement is not noticeable. Using system.time to check with 12 elements. We notice that we got slight improvement in User instruction but lose time in System instruction. 

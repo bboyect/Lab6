@@ -19,13 +19,15 @@ NULL
 
 get_indexes<- function(vector,data){
   indexes <- which(vector == 1)
+  
   sum <- 0
   if (exists("indexes"))
   {
     for (i in indexes){
       sum <- sum + data[i, 1]
-      
     }
+    # sum <- sum(rowSums(as.matrix(data[indexes, 1])))
+
   }
   return(sum)
 }
@@ -45,12 +47,13 @@ get_value <- function(vector,data){
     for (i in indexes){
       sum <- sum + data[i, 2]
     }
+    # sum <- sum(rowSums(as.matrix(data[indexes, 2])))
   }
   return(sum)
 }
 
 #==============Brute Force Function=======
-#' brute_force_knapsack
+#' brute_force_knapsacks
 #'
 #' Using brute force to solve knapsack
 #' 
@@ -66,32 +69,27 @@ brute_force_knapsack <- function(x,W,parallel = FALSE){
   if(is.data.frame(x)==FALSE ){stop()} # Check if the firs input is data.frame
   if( any(x < 0)){stop()} #Check if every value in dataframe is positive
   if( W < 0){stop()}
-  
-  
-  
+
   if (parallel == TRUE) {
     cores <- parallel::detectCores()
     cl <- parallel::makeCluster(cores, type = "PSOCK")
-    parallel::clusterExport(cl, varlist=c("x","W"), envir=environment())
-    
+
     n <- nrow(x)
     l <- rep(list(0:1), n)
     
     combinations<- parallel::parLapply(cl, 1:(2^n), function(x) as.integer(intToBits(x)))
     parallel::stopCluster(cl)
-    multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
-    multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
-  }
+   }
   
   else{
     n <- nrow(x)
     l <- rep(list(0:1), n)
     
     combinations<- lapply( 1:(2^n), function(x) as.integer(intToBits(x)))
-    multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
-    multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
+    
   }  
-  
+  multiple_combinations <- data.frame(matrix(unlist(combinations), nrow=length(combinations), byrow=TRUE))
+  multiple_combinations <- multiple_combinations[,-(n+1):-ncol(multiple_combinations)]
   total_weights <- list()
   total_values <- list()
   
@@ -213,4 +211,7 @@ greedy_knapsack <- function(x, W){
   
   return(output_list)
 }
+
+
+
 

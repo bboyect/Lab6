@@ -3,7 +3,7 @@
 \docType{package}
 \name{lab6}
 \alias{lab6}
-\title{Lab3}
+\title{Lab6}
 \description{
 Using different alogrithm to solve knapsack problem
 }

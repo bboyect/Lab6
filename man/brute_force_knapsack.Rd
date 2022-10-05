@@ -2,7 +2,7 @@
 % Please edit documentation in R/Lab6.R
 \name{brute_force_knapsack}
 \alias{brute_force_knapsack}
-\title{brute_force_knapsack}
+\title{brute_force_knapsacks}
 \usage{
 brute_force_knapsack(x, W, parallel = FALSE)
 }
